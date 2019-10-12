@@ -19,14 +19,21 @@ struct simulator{
 	unsigned char count_emission;
 	unsigned char nb_bit_emission;
 
+	unsigned char* array_Tx;
+	unsigned char index;
+	unsigned char size;
+
+
 	/*Variables de l'automates de réception*/
 	unsigned char var_Rx;
 	unsigned char RECEIVED;
 	unsigned char state_reception;
 	unsigned char count_reception;
 	unsigned char nb_bit_reception;
-
+	unsigned char TRANSMIT_XON_XOFF;
 	unsigned char var_loc;
+
+	unsigned char XOFF;
 };
 
 /* routine d'interruption*/

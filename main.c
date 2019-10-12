@@ -6,7 +6,7 @@
 
 #include "simulator.h"
 
-#define PERIOD_USEC (100000)
+#define PERIOD_USEC (10000)
 
 // wire[1] = Tx  de 1 et Rx  de 2
 // wire[2] = Rx  de 1 et Tx  de 2
@@ -36,7 +36,7 @@ static struct simulator simulator2=
 
 void signal_handler(int sigsum){
 	timer_interruption(&simulator1);
-	//printf("RTS=%d;CTS=%d\tstate1=%d;state2=%d\n",simulator1.RTS,simulator1.CTS,simulator1.state_emission,simulator2.state_reception);
+	//printf("RTS=%d;CTS=%d\tstate1=%d;state2=%d\n;index=%d\n",simulator1.RTS,simulator1.CTS,simulator1.state_emission,simulator2.state_reception,simulator1.index);
 	timer_interruption(&simulator2);
 }
 
