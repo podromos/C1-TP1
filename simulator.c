@@ -118,9 +118,11 @@ void automate_emission_RTS_CTS(struct simulator* simu){
 			break;
 
 		case 1:
-			if(simu->CTS == 1){  // make sure that successive transmits cannot take place
+			/* On s'assure que le récepteur est en attente pour passer RTS à 1*/
+			if(simu->CTS == 1){  
 				simu->RTS = 0;
 			}
+			/* Si CTS et RTS = 0 on début l'envoie */
 			else if(simu->RTS == 0){	
 				simu->state_emission = 2;
 			}
@@ -169,6 +171,7 @@ void automate_reception_RTS_CTS(struct simulator* simu){
 	switch(simu->state_reception)
 	{
 		case 0:
+			/* Si une demande d'envoie est faite*/
 			if(simu->CTS == 0)
 			{
 				simu->RTS = 0;
@@ -224,6 +227,7 @@ void automate_reception_RTS_CTS(struct simulator* simu){
 			simu->state_reception=7;
 			break;
 		case 7:
+			/* On attent l'envoie de l'octet soit déclarée terminée par l'émetteur (via CTS)*/
 			if (simu->CTS==1){
 				simu->RTS = 1;
 				simu->state_reception = 0;
@@ -232,7 +236,7 @@ void automate_reception_RTS_CTS(struct simulator* simu){
 }
 
 
-/*AUTOMATES XON/XOFF*/
+/*AUTOMATES XON/XOFF avec prise en charge de l'envoie de tableau*/
 
 void automate_emission_XON_XOFF(struct simulator* simu){
 	switch(simu->state_emission){
@@ -245,7 +249,9 @@ void automate_emission_XON_XOFF(struct simulator* simu){
 			break;
 
 		case 1:
+			/* Si aucun signal XOFF n'a été reçu */
 			if (!simu->XOFF ){
+				/* Si l'émission en cours correspond à l'émission d'un tableau de donnée (et non d'un signal XON/XOFF)*/
 				if(simu->TRANSMIT){
 					simu->var_Tx=simu->array_Tx[simu->index];
 				}
@@ -262,8 +268,10 @@ void automate_emission_XON_XOFF(struct simulator* simu){
 			{
 				if (simu->nb_bit_emission != 9)
 					simu->state_emission = 3;
+				/* Si l'émission correspond à l'envoie d'un tableau de données */
 				else if(simu->TRANSMIT) 
 					simu->state_emission = 4;
+				/* Si l'émission correspond à l'envoie d'un signal XON/XOFF */
 				else
 					simu->state_emission = 5;
 			}
@@ -284,7 +292,8 @@ void automate_emission_XON_XOFF(struct simulator* simu){
 
 		case 4: 
 			simu->index++;
-			/* envoie de l'élément "index+1" du tableau */
+			/* Si le dernier élément n'est pas atteint */
+			/* Envoie de l'élément d'indice "index+1" du tableau */
 			if (simu->index<simu->size){
 				simu->state_emission = 1;
 			}
@@ -298,7 +307,6 @@ void automate_emission_XON_XOFF(struct simulator* simu){
 			simu->TRANSMIT_XON_XOFF=0;
 			simu->state_emission=0;
 			break;
-
 	}
 }
 
@@ -346,7 +354,9 @@ void automate_reception_XON_XOFF(struct simulator* simu){
 		case 5:
 			if(simu->RECEIVED == 0)
 	   		{
+	   			/*Si une émission d'un tableau de données est en cours */
 	   			if (simu->TRANSMIT){
+	   				/* Mise à jour si nécessaire du flag XOFF*/
 	   				if(simu->var_Rx==17){
 	   					simu->XOFF=0;
 	   				}
@@ -364,7 +374,7 @@ void automate_reception_XON_XOFF(struct simulator* simu){
 	}
 }
 
-/* Envoie d'un tableau */
+/* Envoie d'un tableau pour les automates de base et RTS/CTS*/
 void send_array(struct simulator* simu,char* t,unsigned int size){
 	unsigned int i=0;
 	while (i<size){
@@ -388,6 +398,7 @@ void timer_interruption(struct simulator* simu){
 
 /* MAIN */
 
+/* exemple de l'envoie deux fois d'un tableau */
 void* main_simulator1(void* data){
 	
 	struct simulator* simu=(struct simulator*) data;
@@ -398,10 +409,15 @@ void* main_simulator1(void* data){
 	simu->array_Tx=array;
 	simu->size=10;
 	simu->TRANSMIT=1;
+	while(simu->TRANSMIT);
+	simu->array_Tx=array;
+	simu->size=10;
+	simu->TRANSMIT=1;
 	while(1);
 	return NULL;
 }
 
+/* Réception avec intérruption XON/XOFF */
 void* main_simulator2(void* data){
 	struct simulator* simu=(struct simulator*) data;
 	

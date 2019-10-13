@@ -14,15 +14,16 @@ struct simulator{
 	
 	/*Variables de l'automate d'émission*/
 	unsigned char var_Tx;
-	unsigned char TRANSMIT;
+	unsigned char TRANSMIT; /* Flag indiquant la transmission de données*/
 	unsigned char state_emission;
 	unsigned char count_emission;
 	unsigned char nb_bit_emission;
 
-	unsigned char* array_Tx;
-	unsigned char index;
-	unsigned char size;
+	unsigned char* array_Tx; /* pointeurs sur un tableau à envoyer */
+	unsigned char index; /* indice de l'élement en cours d'envoie */
+	unsigned char size; /* taille du tableau array_Tx */
 
+	unsigned char TRANSMIT_XON_XOFF; /* Flag indiquant l'envoie d'un signal XON/XOFF */
 
 	/*Variables de l'automates de réception*/
 	unsigned char var_Rx;
@@ -30,10 +31,10 @@ struct simulator{
 	unsigned char state_reception;
 	unsigned char count_reception;
 	unsigned char nb_bit_reception;
-	unsigned char TRANSMIT_XON_XOFF;
-	unsigned char var_loc;
+	
+	unsigned char var_loc; /* variable dans laquelle est stocckée un donnée une fois sa reception terminée */
 
-	unsigned char XOFF;
+	unsigned char XOFF; /*Flag de demande d'interruption */
 };
 
 /* routine d'interruption*/
